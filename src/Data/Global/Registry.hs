@@ -2,6 +2,7 @@ module Data.Global.Registry where
 
 import Control.Applicative ((<$>))
 import Control.Concurrent.MVar
+import Control.Exception.Base
 import Data.Dynamic
 import Data.Map as M
 
@@ -11,7 +12,7 @@ type Registry cell = MVar (Map String cell)
 
 
 setupRegistryIO :: IO (Registry cell)
-setupRegistryIO = newMVar $ M.empty
+setupRegistryIO = (newMVar $ M.empty)
 
 
 
@@ -20,7 +21,14 @@ lookupIO :: (ref Dynamic -> cell)            -- GVar
          -> (Registry cell) 
          -> String 
          -> IO cell
-lookupIO wrapper maker registry name = modifyMVar registry lkup
+lookupIO wrapper maker registry name = -- modifyMVar registry lkup
+ do { old <- takeMVar registry
+    ; (new, res) <- lkup old
+    ; evaluate res
+    ; evaluate new
+    ; putMVar registry new
+    ; return res
+    }
   where
     lkup reg = case M.lookup name reg of
         Just k' -> return (reg, k')
