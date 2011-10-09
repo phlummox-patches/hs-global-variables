@@ -10,22 +10,26 @@ import Control.Concurrent.MVar
 import Control.Concurrent.STM
 import Data.IORef
 import Data.Dynamic
-import Data.Map as M
+import qualified Data.Map as M
 import GHC.Conc (pseq)
 
 import System.IO.Unsafe
 
 
 #if __GLASGOW_HASKELL__ >= 702
-type Registry = Map (TypeRep,String) Dynamic
+type Registry = M.Map (TypeRep,String) Dynamic
 #else
-type Registry = Map (Int,String) Dynamic
+type Registry = [(TypeRep, M.Map String Dynamic)]
 #endif
 
 setupRegistry :: IO (MVar Registry)
 setupRegistry = m `pseq` newMVar m
   where
+#if __GLASGOW_HASKELL__ >= 702
 	m = M.empty
+#else
+        m = []
+#endif
 
 
 
@@ -33,7 +37,11 @@ setupRegistry = m `pseq` newMVar m
 globalRegistry :: MVar Registry
 globalRegistry = m `pseq` unsafePerformIO (newMVar m)
   where
+#if __GLASGOW_HASKELL__ >= 702
     m = M.empty
+#else
+        m = []
+#endif
 
 
 -- TODO: add a proper assertion explaining the problem
@@ -66,14 +74,22 @@ lookupOrInsert registry new name val = modifyMVar registry lkup
 #else
     lkup :: Registry -> IO (Registry, ref a)
     lkup reg = 
-     do { typIdx <- typeRepKey typ 
-        ; case M.lookup (typIdx, name) reg of
-            Just ref -> return (reg, fromDyn ref (err typ (dynTypeRep ref)))
-            Nothing -> 
-             do { ref <- new val
-                ; return (M.insert (typIdx, name) (toDyn ref) reg, ref)
-                }
-        }
+        case lookup typ reg of
+            Just regm -> case M.lookup name regm of
+                Just ref -> return (reg, fromDyn ref (err typ (dynTypeRep ref)))
+                Nothing ->
+                 do { ref <- new val
+                    ; return (update typ (M.insert name (toDyn ref) regm) reg, ref)
+                    }
+            Nothing ->
+                 do { ref <- new val
+                    ; return (update typ (M.singleton name (toDyn ref)) reg, ref)
+                    }
+
+    update key val []           = [(key, val)]
+    update key val (x@(k,_):xs)
+        | key == k              = (k, val):xs
+        | otherwise             = x:(update key val xs)
 #endif
 
 {-# NOINLINE lookupOrInsert #-}
