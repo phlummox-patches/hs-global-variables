@@ -34,9 +34,9 @@ import System.IO.Unsafe
 
 
 #if __GLASGOW_HASKELL__ >= 702
-type Registry = Map (TypeRep,TypeRep,String) Dynamic
+type Registry = Map (TypeRep, TypeRep, String) Dynamic
 #else
-type Registry = Map (Int,Int,String) Dynamic
+type Registry = Map (String, String, String) Dynamic
 #endif
 
 -- | Test helper
@@ -90,8 +90,8 @@ lookupOrInsert registry new name val = modifyMVar registry lkup
      do { typVal <- evaluate $ typeOf' val
         ; typRef <- evaluate $ typeOf' (undefined :: ref ()) -- TypeRep representing the
                                                              -- reference, e.g. IORef, MVar
-        ; typValIdx <- typeRepKey typVal
-        ; typRefIdx <- typeRepKey typRef
+        ; let typValIdx = show typVal
+        ; let typRefIdx = show typRef
         ; case M.lookup (typRefIdx, typValIdx, name) reg of
             Just ref -> return (reg, fromDyn ref (err typVal (dynTypeRep ref)))
             Nothing ->
