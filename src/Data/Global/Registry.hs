@@ -20,8 +20,11 @@ module Data.Global.Registry (
   , setupRegistry
 ) where
 
-import Control.Concurrent.MVar
-import Control.Concurrent.STM
+import Control.Concurrent.MVar ( MVar, newMVar, newEmptyMVar, modifyMVar )
+#if __GLASGOW_HASKELL__ < 702
+import Control.Concurrent.MVar ( takeMVar, putMVar )
+#endif
+import Control.Concurrent.STM  ( TVar, newTVarIO )
 #if __GLASGOW_HASKELL__ < 702
 import Control.Exception       ( evaluate )
 #endif
