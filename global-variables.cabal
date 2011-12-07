@@ -37,6 +37,7 @@ Description:
    Version History:
    .
    1.0.1.0: added declareEmptyMVar and widened the stm dependency
+   .
    1.0: First public release
 
 License:            BSD3
