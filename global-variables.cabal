@@ -1,5 +1,5 @@
 Name:               global-variables
-Version:            1.0
+Version:            1.0.1.0
 
 Synopsis:           Namespaced, global, and top-level mutable variables without
                     unsafePerformIO.
@@ -33,6 +33,11 @@ Description:
    extends their handling significantly.
    .
    Examples are in the documentation of "Data.Global".
+   .
+   Version History:
+   .
+   1.0.1.0: added declareEmptyMVar and widened the stm dependency
+   1.0: First public release
 
 License:            BSD3
 License-file:       LICENSE
@@ -46,6 +51,7 @@ Category:           Data, Reflection
 
 Build-type:         Simple
 
+Tested-With:        GHC == 7.0.4, GHC == 7.2.2
 -- Extra files to be distributed with the package, such as examples or
 -- a README.
 -- Extra-source-files:
@@ -58,7 +64,7 @@ Library
 
   Build-depends:      base >= 4 && < 5
                     , containers >= 0.3 && < 0.5
-                    , stm >= 2.1 && < 2.2
+                    , stm >= 2.1 && < 2.3
 
   Other-modules:    Data.Global.Registry
 
