@@ -1,5 +1,5 @@
 Name:               global-variables
-Version:            1.0.1.0
+Version:            1.0.1.1
 
 Synopsis:           Namespaced, global, and top-level mutable variables without
                     unsafePerformIO.
@@ -36,6 +36,8 @@ Description:
    .
    Version History:
    .
+   1.0.1.1: made compatible with stm-2.3
+   .
    1.0.1.0: added declareEmptyMVar and widened the stm dependency
    .
    1.0: First public release
@@ -44,7 +46,7 @@ License:            BSD3
 License-file:       LICENSE
 Author:             Jean-Marie Gaillourdet and Patrick Michel
 Maintainer:         Jean-Marie Gaillourdet <jmg@gaillourdet.net>
-Copyright:          2011 Jean-Marie Gaillourdet
+Copyright:          2011, 2012 Jean-Marie Gaillourdet
 Bug-Reports:        http://bitbucket.org/jmg/global-variables/issues
 Stability:          stable
 
@@ -64,8 +66,8 @@ Library
   Hs-Source-Dirs:   src
 
   Build-depends:      base >= 4 && < 5
-                    , containers >= 0.3 && < 0.5
-                    , stm >= 2.1 && < 2.4
+                    , containers >= 0.3 && < 0.6
+                    , stm >= 2.1 && < 2.5
 
   Other-modules:    Data.Global.Registry
 
