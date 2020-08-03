@@ -30,6 +30,7 @@ import Control.Exception       ( evaluate )
 #endif
 import Data.IORef
 import Data.Dynamic
+import Data.Typeable
 import Data.Map as M
 import GHC.Conc                ( pseq )
 import GHC.IO                  ( unsafePerformIO, unsafeDupablePerformIO )
@@ -63,7 +64,7 @@ globalRegistry = m `pseq` unsafePerformIO (newMVar m)
 
 -- | Exposed for unit testing
 lookupOrInsert
-    :: forall a. forall ref. (Typeable a, Typeable1 ref)
+    :: forall a  ref . (Typeable a, Typeable ref)
     => MVar Registry
     -> (a -> IO (ref a))
     -> String
@@ -79,7 +80,7 @@ lookupOrInsert registry new name val = modifyMVar registry lkup
 
 #if __GLASGOW_HASKELL__ >= 702
     typVal = typeOf val
-    typRef = typeOf (undefined :: ref ()) -- TypeRep representing the reference, e.g. IORef,
+    typRef = typeOf1 (undefined :: ref ()) -- TypeRep representing the reference, e.g. IORef,
                                           -- MVar
 
     lkup :: Registry -> IO (Registry, ref a)
